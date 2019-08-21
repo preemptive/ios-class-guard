@@ -40,22 +40,23 @@ $(WORKSPACE) Pods Podfile.lock: Podfile
 	pod install
 
 .PHONY: program
-program: Pods build test
+program: Pods clean build
+
+# "test" appears to mean "build for testing and test", so the unit tests. Do that first, then make the real thing.
+.PHONY: unittest
+unittest: Pods
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) test
 
 .PHONY: build
 build:
-	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) build
-
-.PHONY: test
-test:
-	xcodebuild $(XCODEBUILD_OPTIONS) test
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) clean build
 
 .PHONY: check
 check:
 	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
-archive: package-check distclean archive-dir program check dist-package copy-symbols
+archive: package-check distclean unittest program check archive-dir dist-package copy-symbols
 
 .PHONY: package-check
 package-check:
@@ -69,7 +70,7 @@ archive-dir:
 .PHONY: dist-package
 dist-package: $(DIST_PACKAGE)
 
-$(DIST_PACKAGE): program
+$(DIST_PACKAGE):
 	mkdir -p $(DIST_DIR)
 	cp $(PROGRAM) \
 		README.md \
@@ -89,4 +90,4 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	$(RM) -r Pods $(DIST_DIR)* $(VERSION)*
+	$(RM) -r Pods $(DIST_DIR)* v?.?.?-*
