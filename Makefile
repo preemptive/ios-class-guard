@@ -55,8 +55,7 @@ check:
 	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
-archive: package-check distclean archive-dir program check $(DIST_PACKAGE)
-	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
+archive: package-check distclean archive-dir program check dist-package copy-symbols
 
 .PHONY: package-check
 package-check:
@@ -67,6 +66,9 @@ package-check:
 archive-dir:
 	mkdir -p $(ARCHIVE_DIR)
 
+.PHONY: dist-package
+dist-package: $(DIST_PACKAGE)
+
 $(DIST_PACKAGE): program
 	mkdir -p $(DIST_DIR)
 	cp $(PROGRAM) \
@@ -76,6 +78,10 @@ $(DIST_PACKAGE): program
 		CHANGELOG.md \
 		$(DIST_DIR)
 	tar -cvpzf $@ --options gzip:compression-level=9 $(DIST_DIR)
+
+.PHONY: copy-symbols
+copy-symbols:
+	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
 
 .PHONY: clean
 clean:
