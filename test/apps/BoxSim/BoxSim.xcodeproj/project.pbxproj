@@ -214,6 +214,7 @@
 				TargetAttributes = {
 					D0CFE6651CBD6F4E00E18918 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 7RYWC3D7HS;
 					};
 					D0CFE6811CBD6F4E00E18918 = {
 						CreatedOnToolsVersion = 7.2;
@@ -426,6 +427,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7RYWC3D7HS;
 				INFOPLIST_FILE = BoxSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.preemptive.ppios.test.BoxSim;
@@ -438,6 +440,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 7RYWC3D7HS;
 				INFOPLIST_FILE = BoxSim/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.preemptive.ppios.test.BoxSim;
