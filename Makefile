@@ -47,11 +47,13 @@ program: Pods clean build
 # "test" appears to mean "build for testing and test", so the unit tests. Do that first, then make the real thing.
 .PHONY: unittest
 unittest: Pods
-	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) test
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) test \
+		| tee xcodebuild-$@.log | xcpretty ; exit "$${PIPESTATUS[0]}"
 
 .PHONY: build
 build:
-	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) clean build
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) clean build \
+		| tee xcodebuild-$@.log | xcpretty ; exit "$${PIPESTATUS[0]}"
 
 .PHONY: check
 check:
