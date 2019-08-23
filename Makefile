@@ -6,8 +6,10 @@ NUMERIC_VERSION=1.4.0
 VERSION=v$(NUMERIC_VERSION)
 PROGRAM_NAME=ppios-rename
 
+TARGET=Release
+#TARGET=Debug
 BUILD_DIR=build
-PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)"
+PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/$(TARGET)/$(PROGRAM_NAME)"
 README="$(shell pwd)/README.md"
 GIT_CMD=git rev-parse --short HEAD
 GIT_HASH_CHECK=$(GIT_CMD) &> /dev/null
@@ -23,7 +25,7 @@ WORKSPACE=ppios-rename.xcworkspace
 XCODEBUILD_OPTIONS=\
 	-workspace $(WORKSPACE) \
 	-scheme ppios-rename \
-	-configuration Release \
+	-configuration $(TARGET) \
 	-derivedDataPath $(BUILD_DIR)
 
 .PHONY: default
