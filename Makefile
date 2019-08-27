@@ -6,8 +6,10 @@ NUMERIC_VERSION=1.4.0
 VERSION=v$(NUMERIC_VERSION)
 PROGRAM_NAME=ppios-rename
 
+TARGET=Release
+#TARGET=Debug
 BUILD_DIR=build
-PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/Release/$(PROGRAM_NAME)"
+PROGRAM="$(shell pwd)/$(BUILD_DIR)/Build/Products/$(TARGET)/$(PROGRAM_NAME)"
 README="$(shell pwd)/README.md"
 GIT_CMD=git rev-parse --short HEAD
 GIT_HASH_CHECK=$(GIT_CMD) &> /dev/null
@@ -23,10 +25,8 @@ WORKSPACE=ppios-rename.xcworkspace
 XCODEBUILD_OPTIONS=\
 	-workspace $(WORKSPACE) \
 	-scheme ppios-rename \
-	-configuration Release \
-	-derivedDataPath $(BUILD_DIR) \
-	-reporter plain \
-	-reporter junit:$(BUILD_DIR)/unit-test-report.xml
+	-configuration $(TARGET) \
+	-derivedDataPath $(BUILD_DIR)
 
 .PHONY: default
 default: all
@@ -42,19 +42,25 @@ $(WORKSPACE) Pods Podfile.lock: Podfile
 	pod install
 
 .PHONY: program
-program: Pods
-# Merged the separate build and test steps: xcodebuild was rebuilding the product for 'test'.  It
-# appears that Xcode 8 provides test-without-building option for xcodebuild, and once we move to
-# that version we should be able to separate these two parts again.
-	xctool $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) build test
+program: Pods clean build
+
+# "test" appears to mean "build for testing and test", so the unit tests. Do that first, then make the real thing.
+.PHONY: unittest
+unittest: Pods
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) test \
+		| tee xcodebuild-$@.log | xcpretty ; exit "$${PIPESTATUS[0]}"
+
+.PHONY: build
+build:
+	xcodebuild $(XCODEBUILD_OPTIONS) CLASS_DUMP_VERSION=$(NUMERIC_VERSION)$(GIT_HASH) clean build \
+		| tee xcodebuild-$@.log | xcpretty ; exit "$${PIPESTATUS[0]}"
 
 .PHONY: check
 check:
 	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
-archive: package-check distclean archive-dir program check $(DIST_PACKAGE)
-	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
+archive: package-check distclean unittest program check archive-dir $(DIST_PACKAGE) copy-symbols
 
 .PHONY: package-check
 package-check:
@@ -65,7 +71,7 @@ package-check:
 archive-dir:
 	mkdir -p $(ARCHIVE_DIR)
 
-$(DIST_PACKAGE): program
+$(DIST_PACKAGE):
 	mkdir -p $(DIST_DIR)
 	cp $(PROGRAM) \
 		README.md \
@@ -75,10 +81,14 @@ $(DIST_PACKAGE): program
 		$(DIST_DIR)
 	tar -cvpzf $@ --options gzip:compression-level=9 $(DIST_DIR)
 
+.PHONY: copy-symbols
+copy-symbols:
+	cp -r $(PROGRAM).dSYM $(ARCHIVE_DIR)/
+
 .PHONY: clean
 clean:
 	$(RM) -r $(BUILD_DIR)
 
 .PHONY: distclean
 distclean: clean
-	$(RM) -r Pods $(DIST_DIR)* $(VERSION)*
+	$(RM) -r Pods $(DIST_DIR)* v?.?.?-*

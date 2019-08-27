@@ -1,9 +1,9 @@
 xcuserdata
 *.xcarchive/
-.idea
-build
-
-#ignore cocoapod files
-Pods
-ppios-rename.xcworkspace/
+/.idea/
+/build/
+/Pods/
+/ppios-rename.xcworkspace/
 DerivedData
+/*._*/
+/v*.*.*/
