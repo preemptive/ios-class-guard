@@ -60,7 +60,7 @@ check:
 	( cd test/tests ; PPIOS_RENAME=$(PROGRAM) README=$(README) NUMERIC_VERSION=$(NUMERIC_VERSION) ./test-suite.sh )
 
 .PHONY: archive
-archive: package-check distclean unittest program check archive-dir dist-package copy-symbols
+archive: package-check distclean unittest program check archive-dir $(DIST_PACKAGE) copy-symbols
 
 .PHONY: package-check
 package-check:
@@ -70,9 +70,6 @@ package-check:
 .PHONY: archive-dir
 archive-dir:
 	mkdir -p $(ARCHIVE_DIR)
-
-.PHONY: dist-package
-dist-package: $(DIST_PACKAGE)
 
 $(DIST_PACKAGE):
 	mkdir -p $(DIST_DIR)
