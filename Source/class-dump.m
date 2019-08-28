@@ -617,9 +617,10 @@ static NSString *resolveFrameworkRoot(NSFileManager *fileManager,
     if (range.location != NSNotFound) {
         // In Xcode 11, the directories were reordered. Prefer the Xcode 11 order.
         NSUInteger start = range.location + range.length;
+        NSRange replaceablePart = NSMakeRange(start, [sdkRoot length] - start);
         for (NSString *simulator in [NSArray arrayWithObjects:@"iPhoneOS.platform/Library/Developer", @"iPhoneOS.platform/Developer/Library", nil]) {
             NSString *candidate = [simulator stringByAppendingString:@"/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot"];
-            NSString *root = [sdkRoot stringByReplacingCharactersInRange:NSMakeRange(start, [sdkRoot length] - start) withString:candidate];
+            NSString *root = [sdkRoot stringByReplacingCharactersInRange:replaceablePart withString:candidate];
             if ([fileManager fileExistsAtPath:root]) {
                 return root;
             }
