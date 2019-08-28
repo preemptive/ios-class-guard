@@ -1,7 +1,6 @@
 Change Log
 ==========
 
-
 1.4.0
 -----------------------
 
@@ -12,8 +11,6 @@ Change Log
 ### Changes:
 
 * Xcode 9 is no longer supported.
-
-### Fixes:
 
 
 1.3.0
