@@ -613,14 +613,17 @@ static NSString *resolveSDKPath(NSFileManager *fileManager,
 static NSString *resolveFrameworkRoot(NSFileManager *fileManager,
                                       NSString *const sdkRoot) {
 
-    NSString *platformsString = @"Platforms";
-    NSRange range = [sdkRoot rangeOfString:platformsString];
+    NSRange range = [sdkRoot rangeOfString:@"/Platforms/"];
     if (range.location != NSNotFound) {
-        NSString *platforms = [sdkRoot substringToIndex:(range.location + platformsString.length)];
-        NSString *root = [platforms stringByAppendingString:@"/iPhoneOS.platform/Developer/Library/CoreSimulator/"
-                                    @"Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot"];
-        if ([fileManager fileExistsAtPath:root]) {
-            return root;
+        // In Xcode 11, the directories were reordered. Prefer the Xcode 11 order.
+        NSUInteger start = range.location + range.length;
+        NSRange replaceablePart = NSMakeRange(start, [sdkRoot length] - start);
+        for (NSString *simulator in [NSArray arrayWithObjects:@"iPhoneOS.platform/Library/Developer", @"iPhoneOS.platform/Developer/Library", nil]) {
+            NSString *candidate = [simulator stringByAppendingString:@"/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot"];
+            NSString *root = [sdkRoot stringByReplacingCharactersInRange:replaceablePart withString:candidate];
+            if ([fileManager fileExistsAtPath:root]) {
+                return root;
+            }
         }
     }
     

@@ -6,7 +6,13 @@ Change Log
 -----------------------
 
 ### Enhancements:
+
+* Now supports Xcode 11 and iOS 13.
+
 ### Changes:
+
+* Xcode 9 is no longer supported.
+
 ### Fixes:
 
 
