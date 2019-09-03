@@ -11,6 +11,7 @@ Change Log
 ### Changes:
 
 * Xcode 9 is no longer supported.
+* 32-bit devices are no longer supported.
 
 
 1.3.0
