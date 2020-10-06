@@ -410,17 +410,54 @@
         
         struct cd_objc2_list_header listHeader;
         
-        // See getEntsize() from http://www.opensource.apple.com/source/objc4/objc4-532.2/runtime/objc-runtime-new.h
-        listHeader.entsize = [cursor readInt32] & ~(uint32_t)3;
-        listHeader.count   = [cursor readInt32];
-        NSParameterAssert(listHeader.entsize == 3 * [self.machOFile ptrSize]);
-        
+        // See https://opensource.apple.com/source/objc4/objc4-787.1/runtime/objc-runtime-new.h
+        uint32_t mask = 0xFFFF0003;
+        uint32_t value = [cursor readInt32];
+        listHeader.entsize = value & ~mask;
+        uint32_t flags = value & mask;
+        int smallMethods = (flags & 0x80000000) != 0;
+        /*
+          Tests show no leftovers were present. Consistent with comments indicating smallMethodListFlag is currently the only flag.
+        int leftOvers = flags & ~0x80000000;
+        if (leftOvers != 0) {
+            NSLog(@"Leftovers was non-zero: 0x%08x (0x%08x)", leftOvers, value);
+        }
+         */
+        listHeader.count = [cursor readInt32];
+//        NSLog(@"Info: %u == %lu?: listHeader.entsize=%u self.machOFile ptrSize=%lu (%d 0x%x)", listHeader.entsize, (3 * [self.machOFile ptrSize]), listHeader.entsize, [self.machOFile ptrSize], listHeader.entsize, listHeader.entsize);
+        if (smallMethods) {
+            NSParameterAssert(listHeader.entsize == (3 * sizeof(uint32_t)));
+        } else {
+            NSParameterAssert(listHeader.entsize == 3 * [self.machOFile ptrSize]);
+        }
         for (uint32_t index = 0; index < listHeader.count; index++) {
             struct cd_objc2_method objc2Method;
             
-            objc2Method.name  = [cursor readPtr];
-            objc2Method.types = [cursor readPtr];
-            objc2Method.imp   = [cursor readPtr];
+            if (smallMethods) {
+//                NSLog(@"NEW METHOD!!");
+                uint64_t offset1 = [cursor offset];
+                int value1 = [cursor readInt32];
+                objc2Method.name = (uint64_t)(((int64_t)offset1) + value1);
+                
+                uint64_t offset2 = [cursor offset];
+                int value2 = [cursor readInt32];
+                objc2Method.types = (uint64_t)(((int64_t)offset2) + value2);
+                
+                uint64_t offset3 = [cursor offset];
+                int value3 = [cursor readInt32];
+                objc2Method.imp = (uint64_t)(((int64_t)offset3) + value3);
+                
+//                NSLog(@"values12f: 0x%016llx 0x%016llx 0x%016llx", objc2Method.name, objc2Method.types, objc2Method.imp);
+//                NSLog(@"values12: 0x%08x 0x%08x 0x%08x", value1, value2, value3);
+            } else {
+                uint64_t value1 = [cursor readPtr];
+                uint64_t value2 = [cursor readPtr];
+                uint64_t value3 = [cursor readPtr];
+//                NSLog(@"values24: 0x%016llx 0x%016llx 0x%016llx", value1, value2, value3);
+                objc2Method.name = value1;
+                objc2Method.types = value2;
+                objc2Method.imp = value3;
+            }
             NSString *name    = [self.machOFile stringAtAddress:objc2Method.name];
             NSString *types   = [self.machOFile stringAtAddress:objc2Method.types];
             
@@ -448,12 +485,13 @@
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        //NSLog(@"ivar list data offset: %lu", [cursor offset]);
+        // NSLog(@"ivar list data offset: %lu", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         
         listHeader.entsize = [cursor readInt32];
         listHeader.count = [cursor readInt32];
+//        NSLog(@"Info: %u == %lu?: listHeader.entsize=%u self.machOFile ptrSize=%lu", listHeader.entsize, (3 * [self.machOFile ptrSize] + 2 * sizeof(uint32_t)), listHeader.entsize, [self.machOFile ptrSize]);
         NSParameterAssert(listHeader.entsize == 3 * [self.machOFile ptrSize] + 2 * sizeof(uint32_t));
         
         for (uint32_t index = 0; index < listHeader.count; index++) {
