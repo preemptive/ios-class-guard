@@ -68,11 +68,6 @@
     return _section.size;
 }
 
-- (NSUInteger)alignment;
-{
-    return _section.align;
-}
-
 - (BOOL)containsAddress:(NSUInteger)address;
 {
     return (address >= _section.addr) && (address < _section.addr + _section.size);

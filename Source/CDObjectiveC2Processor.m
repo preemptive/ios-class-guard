@@ -401,16 +401,10 @@
 
 - (NSArray *)loadMethodsAtAddress:(uint64_t)address extendedMethodTypesCursor:(CDMachOFileDataCursor *)extendedMethodTypesCursor;
 {
-    return [self loadMethodsAtAddress:address extendedMethodTypesCursor:extendedMethodTypesCursor base:0ULL];
-}
-
-- (NSArray *)loadMethodsAtAddress:(uint64_t)address extendedMethodTypesCursor:(CDMachOFileDataCursor *)extendedMethodTypesCursor base:(uint64_t)base;
-{
     NSMutableArray *methods = [NSMutableArray array];
     
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
-        NSLog(@"initial offset 0x%016lx address 0x%016llx", [cursor offset], address);
         NSParameterAssert([cursor offset] != 0);
         //NSLog(@"method list data offset: %lu", [cursor offset]);
         
@@ -419,42 +413,17 @@
         // See https://opensource.apple.com/source/objc4/objc4-787.1/runtime/objc-runtime-new.h
         uint32_t value = [cursor readInt32];
         listHeader.entsize = value & ~METHOD_LIST_T_ENTSIZE_MASK;
-        int smallMethodPointers = (value & METHOD_LIST_T_SMALL_METHOD_FLAG) != 0;
+        bool small = (value & METHOD_LIST_T_SMALL_METHOD_FLAG) != 0;
         listHeader.count = [cursor readInt32];
-        NSParameterAssert(listHeader.entsize == 3 * (smallMethodPointers ? sizeof(int32_t) : [self.machOFile ptrSize]));
-
-        uint64_t min1 = 0xFFFFFFFFFFFFFFFFULL;
-        uint64_t max1 = 0ULL;
-        uint64_t min2 = 0xFFFFFFFFFFFFFFFFULL;
-        uint64_t max2 = 0ULL;
-        uint64_t min3 = 0xFFFFFFFFFFFFFFFFULL;
-        uint64_t max3 = 0ULL;
-        uint64_t val2;
+        NSParameterAssert(listHeader.entsize == 3 * (small ? sizeof(int32_t) : [self.machOFile ptrSize]));
 
         for (uint32_t index = 0; index < listHeader.count; index++) {
             struct cd_objc2_method objc2Method;
-            uint64_t offset = [cursor offset];
-            if (smallMethodPointers) {
-                val2 = [cursor readSmallPtr:address]; if (val2 < min1) min1 = val2; if (val2 > max1) max1 = val2;
-                objc2Method.name = val2;
-                val2 = [cursor readSmallPtr:address]; if (val2 < min2) min2 = val2; if (val2 > max2) max2 = val2;
-                objc2Method.types = val2;
-                val2 = [cursor readSmallPtr:address]; if (val2 < min3) min3 = val2; if (val2 > max3) max3 = val2;
-                objc2Method.imp = val2;
-                //                NSLog(@"values12f: 0x%016llx 0x%016llx 0x%016llx", objc2Method.name, objc2Method.types, objc2Method.imp);
-//                NSLog(@"values12: 0x%08x 0x%08x 0x%08x", value1, value2, value3);
-            } else {
-                objc2Method.name  = [cursor readPtr];
-                objc2Method.types = [cursor readPtr];
-                objc2Method.imp   = [cursor readPtr];
-            }
-            NSString *name;
-            if (smallMethodPointers) {
-                name = [self.machOFile stringAtAddress2:objc2Method.name];
-                NSLog(@"small name: %@", name);
-            } else {
-                name = [self.machOFile stringAtAddress:objc2Method.name];
-            }
+
+            objc2Method.name  = [cursor readPtr:small];
+            objc2Method.types = [cursor readPtr:small];
+            objc2Method.imp   = [cursor readPtr:small];
+            NSString *name    = [self.machOFile stringAtAddress:objc2Method.name];
             NSString *types   = [self.machOFile stringAtAddress:objc2Method.types];
             
             if (extendedMethodTypesCursor) {
@@ -462,17 +431,13 @@
                 types = [self.machOFile stringAtAddress:extendedMethodTypes];
             }
             
-//            NSLog(@"%s%3u: 0x%016llx 0x%016llx 0x%016llx 0x%016llx 0x%016llx", (smallMethodPointers ? "small " : ""), index, objc2Method.name, objc2Method.types, objc2Method.imp, offset, address);
-//            NSLog(@"name: %@", name);
-//            NSLog(@"types: %@", types);
+            //NSLog(@"%3u: %016llx %016llx %016llx", index, objc2Method.name, objc2Method.types, objc2Method.imp);
+            //NSLog(@"name: %@", name);
+            //NSLog(@"types: %@", types);
             
             CDOCMethod *method = [[CDOCMethod alloc] initWithName:name typeString:types address:objc2Method.imp];
             [methods addObject:method];
         }
-
-//        if (smallMethodPointers) {
-//            NSLog(@"Small method range: 0x%016llx 0x%016llx 0x%016llx 0x%016llx 0x%016llx 0x%016llx", min1, max1, min2, max2, min3, max3);
-//        }
     }
     
     return [methods reversedArray];
@@ -485,7 +450,7 @@
     if (address != 0) {
         CDMachOFileDataCursor *cursor = [[CDMachOFileDataCursor alloc] initWithFile:self.machOFile address:address];
         NSParameterAssert([cursor offset] != 0);
-        // NSLog(@"ivar list data offset: %lu", [cursor offset]);
+        //NSLog(@"ivar list data offset: %lu", [cursor offset]);
         
         struct cd_objc2_list_header listHeader;
         

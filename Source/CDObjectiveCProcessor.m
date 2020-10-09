@@ -139,7 +139,6 @@
 - (int)process;
 {
     if (self.machOFile.isEncrypted == NO && self.machOFile.canDecryptAllSegments) {
-        NSLog(@"Loading file %@", [[self machOFile] filename]);
         [self.machOFile.symbolTable loadSymbols];
         [self.machOFile.dynamicSymbolTable loadSymbols];
 

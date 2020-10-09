@@ -110,13 +110,15 @@
     return 0;
 }
 
-- (uint64_t)readSmallPtr:(uint64_t)base;
+- (uint64_t)readPtr:(bool)small;
 {
-    uint64_t offsetIntoFile = [self offset];
-    int32_t offset = [self readInt32];
-    return (uint64_t)((int64_t)(offsetIntoFile) + offset);
-    //    return (uint64_t)((int64_t)(base) + offset);
-    //return (uint64_t)(uint32_t)[self readInt32];
+    // "small" pointers are signed 32-bit values
+    if (small) {
+        // The pointers are relative to the location in the image, so get the offset before reading the offset:
+        return [self offset] + [self readInt32];
+    } else {
+        return [self readPtr];
+    }
 }
 
 @end

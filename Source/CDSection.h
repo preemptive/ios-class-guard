@@ -19,7 +19,6 @@
 
 @property (nonatomic, readonly) NSUInteger addr;
 @property (nonatomic, readonly) NSUInteger size;
-@property (nonatomic, readonly) NSUInteger alignment;
 
 - (BOOL)containsAddress:(NSUInteger)address;
 - (NSUInteger)fileOffsetForAddress:(NSUInteger)address;

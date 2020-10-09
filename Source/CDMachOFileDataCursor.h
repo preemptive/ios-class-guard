@@ -28,6 +28,6 @@
 
 // Read using the current byteOrder and ptrSize (from the machOFile)
 - (uint64_t)readPtr;
-- (uint64_t)readSmallPtr:(uint64_t)base;
+- (uint64_t)readPtr:(bool)small;
 
 @end
