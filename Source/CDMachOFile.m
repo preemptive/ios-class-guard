@@ -352,6 +352,67 @@ static NSString *CDMachOFileMagicNumberDescription(uint32_t magic)
     if (offset == 0)
         return nil;
 
+    CDSection *section = [segment sectionContainingAddress:address];
+    if ([[section sectionName] isEqualToString:@"__objc_selrefs"]) {
+        NSLog(@"large method reference (0x%016lx) into __objc_selrefs!", address);
+    }
+
+    ptr = (uint8_t *)[self.data bytes] + offset;
+
+    return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
+}
+
+- (NSString *)stringAtAddress2:(NSUInteger)address;
+{
+    const void *ptr;
+
+    if (address == 0)
+        return nil;
+
+    CDLCSegment *segment = [self segmentContainingAddress:address];
+    if (segment == nil) {
+        NSLog(@"Error: Cannot find offset for address 0x%08lx in stringAtAddress:", address);
+        exit(5);
+        return nil;
+    }
+
+    if ([segment isProtected]) {
+        NSData *d2 = [segment decryptedData];
+        NSUInteger d2Offset = [segment segmentOffsetForAddress:address];
+        if (d2Offset == 0)
+            return nil;
+
+        ptr = (uint8_t *)[d2 bytes] + d2Offset;
+        return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];
+    }
+
+    NSUInteger offset = [self dataOffsetForAddress:address];
+    if (offset == 0)
+        return nil;
+
+    CDSection *section = [segment sectionContainingAddress:address];
+    if ([[section sectionName] isEqualToString:@"__objc_selrefs"]) {
+//        int pointerSize = (int)[self ptrSize];
+//        int numberOfBytes = pointerSize;//([section alignment] == 8) ? 8 : 4;
+//        if ((1 << [section alignment]) != pointerSize) {
+//            NSLog(@"__objc_selrefs with alignment of %lu and pointerSize of %d!", (unsigned long)[section alignment], pointerSize);
+//        }
+//        const void * reference = [self.data bytes] + offset;
+//        uint64_t referencedAddress = 0ULL;
+//        for (int index = 0; index < numberOfBytes; index++) {
+//            referencedAddress |= ((uint64_t)bytes[index]) << (index * 8);
+//        }
+        
+        const void * reference = [self.data bytes] + offset;
+        offset = ([self ptrSize] == 8) ? *((uint64_t *)reference) : *((uint32_t *)reference);
+
+        // This is probably not the right translation: how do we know that this address is correct, does it need to go through dataOffsetForAddress?
+//        ptr = (uint8_t *)([self.data bytes] + selectorOffset);
+//    } else {
+//        NSLog(@"small method pointer into %@ section!", [section sectionName]);
+//        ptr = (uint8_t *)[self.data bytes] + offset;
+    }
+
     ptr = (uint8_t *)[self.data bytes] + offset;
 
     return [[NSString alloc] initWithBytes:ptr length:strlen(ptr) encoding:NSASCIIStringEncoding];

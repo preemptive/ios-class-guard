@@ -55,6 +55,7 @@ typedef enum : NSUInteger {
 - (CDLCSegment *)segmentWithName:(NSString *)segmentName;
 - (CDLCSegment *)segmentContainingAddress:(NSUInteger)address;
 - (NSString *)stringAtAddress:(NSUInteger)address;
+- (NSString *)stringAtAddress2:(NSUInteger)address;
 
 - (NSUInteger)dataOffsetForAddress:(NSUInteger)address;
 
