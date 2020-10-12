@@ -1,4 +1,4 @@
-# Copyright 2016-2019 PreEmptive Solutions, LLC
+# Copyright 2016-2020 PreEmptive Solutions, LLC
 # See LICENSE.txt for licensing information
 
 PROJECT_NAME=PPiOS-Rename

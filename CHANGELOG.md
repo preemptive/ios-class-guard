@@ -6,7 +6,7 @@ Change Log
 
 ### Enhancements:
 
-* Now supports Xcode 12 and iOS 14.
+* Now supports Xcode 12, iOS 14, and iPadOS 14.
 
 ### Changes:
 
@@ -18,7 +18,7 @@ Change Log
 
 ### Enhancements:
 
-* Now supports Xcode 11 and iOS 13.
+* Now supports Xcode 11, iOS 13, and iPadOS 13.
 
 ### Changes:
 
@@ -116,4 +116,4 @@ Change Log
 Original commit [509591f](https://github.com/Polidea/ios-class-guard/commit/509591f78f37905913ba0cbd832e5e4f7b925a8a) was corrupted. This was fixed by modifying it and rewriting the commit history after it. The new repaired commit is 496ae586. The fork point in the new history is 94121d10.
 
 ---------------------------------------------------------------------
-Copyright 2016-2019 PreEmptive Solutions, LLC
+Copyright 2016-2020 PreEmptive Solutions, LLC
