@@ -1,6 +1,18 @@
 Change Log
 ==========
 
+1.5.0
+-----------------------
+
+### Enhancements:
+
+* Now supports Xcode 12 and iOS 14.
+
+### Changes:
+
+* Xcode 10 is no longer supported.
+
+
 1.4.0
 -----------------------
 
