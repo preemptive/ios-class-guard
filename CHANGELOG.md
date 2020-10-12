@@ -6,7 +6,7 @@ Change Log
 
 ### Enhancements:
 
-* Now supports Xcode 12 and iOS 14.
+* Now supports Xcode 12, iOS 14, and iPadOS 14.
 
 ### Changes:
 
@@ -18,7 +18,7 @@ Change Log
 
 ### Enhancements:
 
-* Now supports Xcode 11 and iOS 13.
+* Now supports Xcode 11, iOS 13, and iPadOS 13.
 
 ### Changes:
 
