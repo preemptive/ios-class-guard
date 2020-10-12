@@ -45,12 +45,12 @@ Supported Platforms
 
 *PPiOS-Rename* supports apps developed for:
 
-* iOS 11, iOS 12, iOS 13, iPadOS 13
+* iOS 12, iOS 13, iPadOS 13, iOS 14, iPadOS 14
 * iPhone, iPod touch, and iPad
 
 Using:
 
-* Xcode 10, Xcode 11
+* Xcode 11, Xcode 12
 * Objective-C
 
 > Note: Swift is not supported by *PPiOS-Rename*. *PPiOS-Rename* **does not work** on projects with **any** Swift code.
@@ -543,4 +543,4 @@ ppios-rename --help
 ```
 
 ---------------------------------------------------------------------
-Copyright 2016-2019 PreEmptive Solutions, LLC
+Copyright 2016-2020 PreEmptive Solutions, LLC

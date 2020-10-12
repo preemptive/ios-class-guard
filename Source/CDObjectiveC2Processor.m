@@ -1,9 +1,9 @@
 // -*- mode: ObjC -*-
 
-/********************************************
-  Copyright 2018 PreEmptive Solutions, LLC
+/************************************************
+  Copyright 2018-2020 PreEmptive Solutions, LLC
   See LICENSE.txt for licensing information
-********************************************/
+************************************************/
 
 //  This file is part of class-dump, a utility for examining the Objective-C segment of Mach-O files.
 //  Copyright (C) 1997-1998, 2000-2001, 2004-2015 Steve Nygard.
